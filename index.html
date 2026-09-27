@@ -1,0 +1,928 @@
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PricePulse - Suivi des Prix & Alertes</title>
+  <!-- FontAwesome Icons for badges and interactive elements -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Font: Playfair Display for headers and Inter for crisp UI text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Elegant Caramel & Maroon Palette */
+      --bg-main: #FDFBF7;
+      --card-bg: #FFFFFF;
+      --card-subtle: #F9F5F0;
+      --maroon-dark: #2C1A14;
+      --maroon-medium: #4A2E2B;
+      --caramel-accent: #C87D55;
+      --caramel-hover: #B36B44;
+      --caramel-light: #F5EBE6;
+      --gold-accent: #D4AF37;
+      --text-main: #2C1A14;
+      --text-muted: #6B5B52;
+      --border-color: #E8DFD8;
+      --success-green: #2E7D32;
+      --success-bg: #E8F5E9;
+      --danger-red: #C62828;
+      --shadow-sm: 0 2px 8px rgba(44, 26, 20, 0.05);
+      --shadow-md: 0 6px 18px rgba(44, 26, 20, 0.08);
+      --shadow-lg: 0 12px 28px rgba(44, 26, 20, 0.12);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 50px;
+    }
+
+    h1, h2, h3, .brand-font {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    /* RTL Layout adjustment for Arabic script */
+    body.rtl {
+      direction: rtl;
+      text-align: right;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 30px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--maroon-dark);
+    }
+
+    .brand-logo i {
+      font-size: 1.8rem;
+      color: var(--caramel-accent);
+    }
+
+    .brand-logo h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .lang-selector {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--maroon-dark);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .lang-selector:hover {
+      border-color: var(--caramel-accent);
+    }
+
+    .plan-banner {
+      background: linear-gradient(135deg, var(--maroon-dark) 0%, var(--maroon-medium) 100%);
+      color: #FFF;
+      padding: 24px;
+      border-radius: var(--radius-md);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan-banner::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      background: rgba(200, 125, 85, 0.15);
+      border-radius: 50%;
+    }
+
+    .plan-info h3 {
+      color: var(--gold-accent);
+      font-size: 1.3rem;
+      margin-bottom: 6px;
+    }
+
+    .plan-info p {
+      color: var(--caramel-light);
+      font-size: 0.95rem;
+    }
+
+    .progress-bar-bg {
+      background: rgba(255, 255, 255, 0.15);
+      height: 8px;
+      border-radius: 4px;
+      width: 180px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      background: var(--caramel-accent);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background-color: var(--caramel-accent);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.25s ease;
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      background-color: var(--caramel-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-accent) 0%, #B8901C 100%);
+      color: var(--maroon-dark);
+      font-weight: 700;
+    }
+
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #E5BF47 0%, var(--gold-accent) 100%);
+    }
+
+    .btn-outline-danger {
+      background: transparent;
+      color: var(--danger-red);
+      border: 1px solid var(--danger-red);
+    }
+
+    .btn-outline-danger:hover {
+      background: var(--danger-red);
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 0.85rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 28px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 35px;
+    }
+
+    .card-title {
+      font-size: 1.4rem;
+      color: var(--maroon-dark);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: var(--caramel-accent);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--maroon-dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--caramel-accent);
+      box-shadow: 0 0 0 3px rgba(200, 125, 85, 0.15);
+      background-color: #FFF;
+    }
+
+    .alert-banner {
+      background-color: var(--success-bg);
+      border: 1px solid #A5D6A7;
+      color: var(--success-green);
+      padding: 16px 20px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 25px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .alert-content {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .section-header h2 {
+      font-size: 1.5rem;
+      color: var(--maroon-dark);
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 22px;
+    }
+
+    .product-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--caramel-accent);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      background-color: var(--caramel-light);
+      color: var(--maroon-dark);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      align-self: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .product-link {
+      font-weight: 600;
+      color: var(--maroon-dark);
+      text-decoration: none;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.4;
+    }
+
+    .product-link:hover {
+      color: var(--caramel-accent);
+    }
+
+    .price-box {
+      background-color: var(--card-subtle);
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      margin: 12px 0 18px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .price-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .price-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .price-val {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--maroon-dark);
+    }
+
+    .price-val.target {
+      color: var(--caramel-accent);
+    }
+
+    .price-val.dropped {
+      color: var(--success-green);
+      animation: pulse 1.5s infinite;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .card-actions .btn {
+      flex: 1;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px 20px;
+      background: var(--card-bg);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      grid-column: 1 / -1;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      color: var(--caramel-accent);
+      margin-bottom: 12px;
+    }
+
+    /* Modal dialog for Payment / Upgrade simulation */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(44, 26, 20, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 32px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      font-size: 1.6rem;
+      color: var(--maroon-dark);
+      margin-bottom: 12px;
+    }
+
+    .modal-content p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* Keyframe Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.6; }
+      100% { opacity: 1; }
+    }
+
+    /* Responsive styling adjustments */
+    @media (max-width: 640px) {
+      .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+      }
+
+      .plan-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header class="top-bar">
+      <a href="#" class="brand-logo">
+        <i class="fa-solid fa-tags"></i>
+        <h1>PricePulse</h1>
+      </a>
+      <div class="top-controls">
+        <select id="lang-select" class="lang-selector" onchange="changeLanguage(this.value)">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="en">🇬🇧 English</option>
+          <option value="ar">🇹🇳 عربي (تونس)</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="plan-banner">
+      <div class="plan-info">
+        <h3 id="txt-plan-title">Plan Actuel : Gratuit</h3>
+        <p id="txt-plan-desc">Vous utilisez la version d'essai (1 produit max).</p>
+        <div class="progress-bar-bg">
+          <div id="progress-fill" class="progress-bar-fill"></div>
+        </div>
+        <span id="txt-usage-count" style="font-size: 0.8rem; color: var(--caramel-light); margin-top: 4px; display: inline-block;">Suivi: 0 / 1</span>
+      </div>
+      <button class="btn btn-gold" id="btn-upgrade-plan" onclick="openUpgradeModal()">
+        <i class="fa-solid fa-crown"></i> <span id="txt-btn-upgrade">Débloquer 30 Produits (10$)</span>
+      </button>
+    </div>
+
+    <div id="alert-banner" class="alert-banner">
+      <div class="alert-content">
+        <i class="fa-solid fa-bell fa-bounce" style="font-size: 1.3rem;"></i>
+        <span id="alert-message">Alerte de baisse de prix détectée !</span>
+      </div>
+      <button onclick="dismissAlert()" style="background: none; border: none; cursor: pointer; color: var(--success-green);">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">
+        <i class="fa-solid fa-plus-circle"></i>
+        <span id="txt-form-title">Ajouter un produit à surveiller</span>
+      </h2>
+      <form id="add-product-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label id="lbl-brand" for="brand-select">Marque / Boutique</label>
+            <select id="brand-select" class="form-control" required>
+              <option value="SHEIN">SHEIN</option>
+              <option value="Amazon">Amazon</option>
+              <option value="Zara">Zara</option>
+              <option value="AliExpress">AliExpress</option>
+              <option value="Temu">Temu</option>
+              <option value="ASOS">ASOS</option>
+              <option value="Mango">Mango</option>
+              <option value="Nike">Nike</option>
+              <option value="Jumia">Jumia</option>
+              <option value="Other">Autre / Officielles</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label id="lbl-url" for="product-url">Lien du produit (URL)</label>
+            <input type="url" id="product-url" class="form-control" placeholder="https://..." required>
+          </div>
+
+          <div class="form-group">
+            <label id="lbl-current-price" for="current-price">Prix Actuel</label>
+            <input type="number" step="0.01" min="0" id="current-price" class="form-control" placeholder="99.00" required>
+          </div>
+
+          <div class="form-group">
+            <label id="lbl-target-price" for="target-price">Prix Cible (Alerte)</label>
+            <input type="number" step="0.01" min="0" id="target-price" class="form-control" placeholder="70.00" required>
+          </div>
+
+          <div class="form-group">
+            <label id="lbl-currency" for="currency-select">Devise</label>
+            <select id="currency-select" class="form-control">
+              <option value="USD">$ (USD)</option>
+              <option value="EUR">€ (EUR)</option>
+              <option value="TND">DT (TND)</option>
+              <option value="SAR">SAR (Riyal)</option>
+              <option value="AED">AED (Dirham)</option>
+              <option value="GBP">£ (GBP)</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="margin-top: 22px; width: 100%;">
+          <i class="fa-solid fa-radar"></i> <span id="txt-btn-submit">Lancer la Surveillance</span>
+        </button>
+      </form>
+    </div>
+
+    <div class="section-header">
+      <h2 id="txt-list-title">Produits sous surveillance</h2>
+    </div>
+
+    <div id="product-grid" class="product-grid">
+      <!-- Tracked cards injected dynamically -->
+    </div>
+  </div>
+
+  <div id="upgrade-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeUpgradeModal()"><i class="fa-solid fa-xmark"></i></button>
+      <i class="fa-solid fa-gem" style="font-size: 2.8rem; color: var(--gold-accent); margin-bottom: 15px;"></i>
+      <h3 id="txt-modal-title">Passer à la version Pro</h3>
+      <p id="txt-modal-desc">Surveillez jusqu'à 30 produits en temps réel pour seulement 10$ / mois.</p>
+      <button class="btn btn-gold" style="width: 100%;" onclick="confirmUpgrade()">
+        <i class="fa-solid fa-credit-card"></i> <span id="txt-btn-confirm-upgrade">Confirmer l'abonnement (10$)</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const translations = {
+      fr: {
+        planTitleFree: "Plan Actuel : Gratuit",
+        planTitlePro: "Plan Actuel : Premium Pro",
+        planDescFree: "Vous utilisez la version d'essai (1 produit max).",
+        planDescPro: "Accès débloqué : Surveillez jusqu'à 30 produits.",
+        usageCount: "Suivi : {current} / {max}",
+        btnUpgrade: "Débloquer 30 Produits (10$)",
+        formTitle: "Ajouter un produit à surveiller",
+        lblBrand: "Marque / Boutique",
+        lblUrl: "Lien du produit (URL)",
+        lblCurrentPrice: "Prix Actuel",
+        lblTargetPrice: "Prix Cible (Alerte)",
+        lblCurrency: "Devise",
+        btnSubmit: "Lancer la Surveillance",
+        listTitle: "Produits sous surveillance",
+        emptyText: "Aucun produit en cours de surveillance pour le moment.",
+        btnSimulate: "📉 Simuler Baisse",
+        btnDelete: "Supprimer",
+        priceCurrent: "Prix Actuel",
+        priceTarget: "Prix Cible",
+        alertMsg: "🎉 Bonne nouvelle! Le prix du produit sur {brand} a chuté à {price} {currency} !",
+        modalTitle: "Passer à la version Pro",
+        modalDesc: "Surveillez jusqu'à 30 produits en temps réel avec notifications instantanées pour seulement 10$.",
+        btnConfirmUpgrade: "Confirmer l'abonnement (10$)",
+        limitReached: "Limite atteinte! Passez au plan Pro (10$ pour 30 produits) pour surveiller plus d'articles.",
+        upgradeSuccess: "Félicitations! Votre abonnement Pro est actif (jusqu'à 30 produits)."
+      },
+      en: {
+        planTitleFree: "Current Plan: Free",
+        planTitlePro: "Current Plan: Premium Pro",
+        planDescFree: "You are using the free trial (1 product max).",
+        planDescPro: "Unlocked access: Track up to 30 products.",
+        usageCount: "Tracking: {current} / {max}",
+        btnUpgrade: "Unlock 30 Products ($10)",
+        formTitle: "Add a product to track",
+        lblBrand: "Brand / Store",
+        lblUrl: "Product Link (URL)",
+        lblCurrentPrice: "Current Price",
+        lblTargetPrice: "Target Price (Alert)",
+        lblCurrency: "Currency",
+        btnSubmit: "Start Tracking",
+        listTitle: "Tracked Products",
+        emptyText: "No products currently under surveillance.",
+        btnSimulate: "📉 Drop Price",
+        btnDelete: "Delete",
+        priceCurrent: "Current Price",
+        priceTarget: "Target Price",
+        alertMsg: "🎉 Great news! Price on {brand} dropped to {price} {currency}!",
+        modalTitle: "Upgrade to Pro Version",
+        modalDesc: "Track up to 30 items in real-time with instant alerts for only $10.",
+        btnConfirmUpgrade: "Confirm Subscription ($10)",
+        limitReached: "Limit reached! Upgrade to Pro plan ($10 for 30 products) to track more items.",
+        upgradeSuccess: "Congratulations! Your Pro subscription is now active (up to 30 products)."
+      },
+      ar: {
+        planTitleFree: "الاشتراك الحالي: مجاني",
+        planTitlePro: "الاشتراك الحالي: باقة برو",
+        planDescFree: "قاعد تستعمل في النسخة المجانية (منتج واحد فقط).",
+        planDescPro: "مفتوح: تنجم تبع حتى لـ 30 منتج مع بعضهم.",
+        usageCount: "المتابعة: {current} / {max}",
+        btnUpgrade: "حل 30 منتج (10$)",
+        formTitle: "زيد منتج تحب تتبع السوم متاعو",
+        lblBrand: "الرأس / الماركة / المترجر",
+        lblUrl: "رابط المنتج (URL)",
+        lblCurrentPrice: "السوم التوا",
+        lblTargetPrice: "السوم اللي تحب عليه (Alert)",
+        lblCurrency: "العملة",
+        btnSubmit: "ابدا المراقبة",
+        listTitle: "المنتجات اللي تحت المراقبة",
+        emptyText: "ما ثما حتى منتج تحت المراقبة توا.",
+        btnSimulate: "📉 طيّح السوم (تجربة)",
+        btnDelete: "فسخ",
+        priceCurrent: "السوم التوا",
+        priceTarget: "السوم المستهدف",
+        alertMsg: "🎉 خبر ممتاز! سوم المنتج في {brand} طاح لـ {price} {currency} !",
+        modalTitle: "ترقية لباقة برو",
+        modalDesc: "تبع حتى لـ 30 منتج في الوقت الفعلي مع إشعارات مباشرة بـ 10$ فقط.",
+        btnConfirmUpgrade: "تأكيد الاشتراك (10$)",
+        limitReached: "وصلت للحد الأقصى! اشترك في باقة برو (10$ لـ 30 منتج) باش تزيد منتجات أخرى.",
+        upgradeSuccess: "مبروك! اشتراك برو تفعل بنجاح (حتى لـ 30 منتج)."
+      }
+    };
+
+    let currentLang = 'fr';
+    let userState = {
+      isPaid: false,
+      maxProducts: 1,
+      products: [
+        {
+          id: 101,
+          brand: 'SHEIN',
+          url: 'https://www.shein.com',
+          currentPrice: 85.00,
+          targetPrice: 60.00,
+          currency: 'USD'
+        }
+      ]
+    };
+
+    // Browser Notification permission request
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+
+      // RTL / LTR text orientation switch
+      if (lang === 'ar') {
+        document.body.classList.add('rtl');
+      } else {
+        document.body.classList.remove('rtl');
+      }
+
+      // Update static texts
+      document.getElementById('txt-plan-title').innerText = userState.isPaid ? t.planTitlePro : t.planTitleFree;
+      document.getElementById('txt-plan-desc').innerText = userState.isPaid ? t.planDescPro : t.planDescFree;
+      document.getElementById('txt-btn-upgrade').innerText = t.btnUpgrade;
+      document.getElementById('txt-form-title').innerText = t.formTitle;
+      document.getElementById('lbl-brand').innerText = t.lblBrand;
+      document.getElementById('lbl-url').innerText = t.lblUrl;
+      document.getElementById('lbl-current-price').innerText = t.lblCurrentPrice;
+      document.getElementById('lbl-target-price').innerText = t.lblTargetPrice;
+      document.getElementById('lbl-currency').innerText = t.lblCurrency;
+      document.getElementById('txt-btn-submit').innerText = t.btnSubmit;
+      document.getElementById('txt-list-title').innerText = t.listTitle;
+      document.getElementById('txt-modal-title').innerText = t.modalTitle;
+      document.getElementById('txt-modal-desc').innerText = t.modalDesc;
+      document.getElementById('txt-btn-confirm-upgrade').innerText = t.btnConfirmUpgrade;
+
+      updateUI();
+    }
+
+    function updateUI() {
+      const t = translations[currentLang];
+
+      // Update usage counters & progress
+      const count = userState.products.length;
+      const max = userState.maxProducts;
+      document.getElementById('txt-usage-count').innerText = t.usageCount.replace('{current}', count).replace('{max}', max);
+      
+      const fillPercentage = Math.min((count / max) * 100, 100);
+      document.getElementById('progress-fill').style.width = fillPercentage + '%';
+
+      // Hide or show Upgrade button depending on state
+      const upgradeBtn = document.getElementById('btn-upgrade-plan');
+      if (userState.isPaid) {
+        upgradeBtn.style.display = 'none';
+      } else {
+        upgradeBtn.style.display = 'inline-flex';
+      }
+
+      // Render product grid
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = '';
+
+      if (userState.products.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-box-open"></i>
+            <p>${t.emptyText}</p>
+          </div>
+        `;
+        return;
+      }
+
+      userState.products.forEach(p => {
+        const isDropped = p.currentPrice <= p.targetPrice;
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div>
+            <span class="brand-badge"><i class="fa-solid fa-store"></i> ${p.brand}</span>
+            <a href="${p.url}" target="_blank" class="product-link" title="${p.url}">
+              ${p.url} <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 0.8rem;"></i>
+            </a>
+            <div class="price-box">
+              <div class="price-item">
+                <span class="price-label">${t.priceCurrent}</span>
+                <span class="price-val ${isDropped ? 'dropped' : ''}">${p.currentPrice.toFixed(2)} ${p.currency}</span>
+              </div>
+              <div class="price-item">
+                <span class="price-label">${t.priceTarget}</span>
+                <span class="price-val target">${p.targetPrice.toFixed(2)} ${p.currency}</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn btn-sm" onclick="simulatePriceDrop(${p.id})">${t.btnSimulate}</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    document.getElementById('add-product-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const t = translations[currentLang];
+
+      if (userState.products.length >= userState.maxProducts) {
+        alert(t.limitReached);
+        openUpgradeModal();
+        return;
+      }
+
+      const brand = document.getElementById('brand-select').value;
+      const url = document.getElementById('product-url').value;
+      const currentPrice = parseFloat(document.getElementById('current-price').value);
+      const targetPrice = parseFloat(document.getElementById('target-price').value);
+      const currency = document.getElementById('currency-select').value;
+
+      const newProduct = {
+        id: Date.now(),
+        brand,
+        url,
+        currentPrice,
+        targetPrice,
+        currency
+      };
+
+      userState.products.push(newProduct);
+      updateUI();
+
+      // Reset Form fields except selects
+      document.getElementById('product-url').value = '';
+      document.getElementById('current-price').value = '';
+      document.getElementById('target-price').value = '';
+    });
+
+    function deleteProduct(id) {
+      userState.products = userState.products.filter(p => p.id !== id);
+      updateUI();
+    }
+
+    function simulatePriceDrop(id) {
+      const product = userState.products.find(p => p.id === id);
+      if (product) {
+        // Drop price below target
+        product.currentPrice = Math.max(1, product.targetPrice - 5);
+        updateUI();
+
+        const t = translations[currentLang];
+        const msg = t.alertMsg
+          .replace('{brand}', product.brand)
+          .replace('{price}', product.currentPrice.toFixed(2))
+          .replace('{currency}', product.currency);
+
+        // Display In-App Banner
+        const alertBanner = document.getElementById('alert-banner');
+        document.getElementById('alert-message').innerText = msg;
+        alertBanner.style.display = 'flex';
+
+        // Trigger Native Browser Web Notification
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("PricePulse Alert!", {
+            body: msg,
+            icon: "https://cdn-icons-png.flaticon.com/512/2523/2523856.png"
+          });
+        }
+      }
+    }
+
+    function dismissAlert() {
+      document.getElementById('alert-banner').style.display = 'none';
+    }
+
+    function openUpgradeModal() {
+      document.getElementById('upgrade-modal').style.display = 'flex';
+    }
+
+    function closeUpgradeModal() {
+      document.getElementById('upgrade-modal').style.display = 'none';
+    }
+
+    function confirmUpgrade() {
+      const t = translations[currentLang];
+      userState.isPaid = true;
+      userState.maxProducts = 30;
+      closeUpgradeModal();
+      alert(t.upgradeSuccess);
+      changeLanguage(currentLang);
+    }
+
+    // Initialize UI on page load
+    window.onload = function() {
+      changeLanguage('fr');
+    };
+  </script>
+</body>
+</html>
